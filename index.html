@@ -1,0 +1,840 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>明暗双生 · 七罪七德十四维人格光谱</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Ccircle cx='19' cy='24' r='14' fill='none' stroke='%23B5766F' stroke-width='3'/%3E%3Ccircle cx='29' cy='24' r='14' fill='none' stroke='%239B86A8' stroke-width='3'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="https://miaoda.feishu.cn/fonts/css2?family=Noto+Serif+SC:wght@500;600;700;900&family=Noto+Sans+SC:wght@300;400;500;700&display=swap">
+<style>
+  :root{
+    --bg:#F3F0EA;
+    --bg-2:#ECE8DF;
+    --card:#FDFCFA;
+    --ink:#37352F;
+    --ink-2:#5A574F;
+    --muted:#8F8A80;
+    --line:#E4E0D7;
+    --accent:#7C8B82;
+    --accent-deep:#5E6F66;
+    --accent-soft:#E6ECE7;
+    --sin:#B5766F;
+    --sin-deep:#96534C;
+    --sin-soft:#F1E3E0;
+    --virtue:#9B86A8;
+    --virtue-deep:#7A6587;
+    --virtue-soft:#EBE4F0;
+    --shadow:0 10px 30px rgba(60,55,45,.06);
+    --shadow-sm:0 4px 14px rgba(60,55,45,.05);
+    --radius:20px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+  html,body{height:100%}
+  body{
+    font-family:"Noto Sans SC","PingFang SC","Microsoft YaHei",system-ui,-apple-system,sans-serif;
+    background:var(--bg);
+    color:var(--ink);
+    line-height:1.6;
+    -webkit-font-smoothing:antialiased;
+  }
+  /* ===== 应用骨架：单列，窄屏优先 ===== */
+  #app{max-width:520px;margin:0 auto;min-height:100vh;position:relative}
+  .view{display:none;padding:0 22px 40px}
+  .view.active{display:block;animation:fade .35s ease}
+  @keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+  h1,h2,.serif{font-family:"Noto Serif SC","Songti SC",serif}
+  .muted{color:var(--muted)}
+
+  /* ===== 通用按钮 ===== */
+  .btn{
+    display:flex;align-items:center;justify-content:center;gap:8px;
+    width:100%;padding:16px 20px;border:none;border-radius:16px;
+    font-size:16px;font-weight:600;font-family:inherit;cursor:pointer;
+    transition:transform .12s ease, box-shadow .2s ease, background .2s ease;
+    min-height:52px;
+  }
+  .btn:active{transform:scale(.98)}
+  .btn-primary{background:var(--ink);color:#FBFAF7;box-shadow:var(--shadow-sm)}
+  .btn-primary:hover{background:#4A473F}
+  .btn-ghost{background:transparent;color:var(--ink-2);border:1px solid var(--line)}
+  .btn-ghost:hover{background:var(--bg-2)}
+
+  /* ===== 首页 ===== */
+  .home-hero{padding:56px 0 12px;text-align:center}
+  .logo-mark{width:64px;height:64px;margin:0 auto 18px}
+  .home-kicker{letter-spacing:.35em;font-size:12px;color:var(--muted);margin-bottom:14px}
+  .home-title{font-size:34px;font-weight:700;letter-spacing:.06em}
+  .home-sub{margin-top:10px;font-size:15px;color:var(--ink-2);letter-spacing:.08em}
+  .meta-chips{display:flex;justify-content:center;gap:10px;margin:26px 0 8px;flex-wrap:wrap}
+  .chip{font-size:12px;color:var(--ink-2);background:var(--card);border:1px solid var(--line);border-radius:999px;padding:7px 14px}
+  .home-intro{margin-top:26px;background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:22px;font-size:14.5px;color:var(--ink-2);box-shadow:var(--shadow-sm)}
+  .home-intro p+p{margin-top:12px}
+  .dual{display:flex;justify-content:center;gap:22px;margin:20px 0 6px;font-size:12px;color:var(--muted)}
+  .dual b{display:block;font-size:15px;color:var(--ink);font-weight:600;margin-bottom:2px}
+  .dual .s{color:var(--sin-deep)} .dual .v{color:var(--virtue-deep)}
+  .note{margin-top:18px;font-size:12px;color:var(--muted);text-align:center;line-height:1.7}
+  .start-wrap{margin-top:30px}
+  .home-foot{margin-top:26px;text-align:center;font-size:11.5px;color:#B3ADA2;line-height:1.8}
+
+  /* ===== 答题 ===== */
+  .quiz-top{position:sticky;top:0;z-index:5;background:var(--bg);padding:18px 0 10px}
+  .quiz-meta{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+  .back-btn{display:flex;align-items:center;gap:4px;border:none;background:none;color:var(--ink-2);font-size:14px;cursor:pointer;padding:6px;font-family:inherit}
+  .counter{font-size:13px;color:var(--muted);letter-spacing:.04em}
+  .counter b{color:var(--ink);font-weight:600}
+  .progress{height:5px;border-radius:999px;background:var(--line);overflow:hidden}
+  .progress-fill{height:100%;width:0;border-radius:999px;background:linear-gradient(90deg,var(--sin),var(--virtue));transition:width .4s ease}
+  .q-card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:24px 20px;box-shadow:var(--shadow-sm);margin-top:8px}
+  .q-group{display:inline-block;font-size:12px;color:var(--accent-deep);background:var(--accent-soft);border-radius:999px;padding:4px 12px;letter-spacing:.05em;margin-bottom:14px}
+  .q-text{font-size:18px;font-weight:500;line-height:1.6}
+  .opts{display:flex;flex-direction:column;gap:12px;margin-top:20px}
+  .opt{
+    display:flex;align-items:flex-start;gap:12px;width:100%;
+    background:var(--card);border:1.5px solid var(--line);border-radius:16px;
+    padding:15px 16px;text-align:left;cursor:pointer;font-family:inherit;
+    font-size:15px;color:var(--ink-2);line-height:1.55;transition:all .15s ease;min-height:52px;
+  }
+  .opt:active{transform:scale(.99)}
+  .opt .ol{flex:none;width:26px;height:26px;border-radius:50%;border:1.5px solid var(--line);display:flex;align-items:center;justify-content:center;font-size:13px;color:var(--muted);transition:all .15s ease;margin-top:1px}
+  .opt.sel{background:var(--accent-soft);border-color:var(--accent)}
+  .opt.sel .ol{background:var(--accent);border-color:var(--accent);color:#fff}
+  .opt.sel{color:var(--ink)}
+  .q-nav{display:flex;gap:12px;margin-top:22px}
+  .q-nav .btn{flex:1}
+
+  /* ===== 结果 ===== */
+  .res-hero{text-align:center;padding:40px 0 8px}
+  .res-hero .kicker{letter-spacing:.3em;font-size:12px;color:var(--muted);margin-bottom:12px}
+  .res-hero .t{font-size:28px;font-weight:700}
+  .top-cards{display:flex;gap:12px;margin-top:24px}
+  .top-card{flex:1;background:var(--card);border:1px solid var(--line);border-radius:18px;padding:18px 12px;text-align:center;box-shadow:var(--shadow-sm)}
+  .top-card .lb{font-size:12px;color:var(--muted);letter-spacing:.08em;margin-bottom:6px}
+  .top-card .nm{font-size:24px;font-weight:700}
+  .top-card .vl{font-size:12px;color:var(--muted);margin-top:4px}
+  .top-card.sin .nm{color:var(--sin-deep)}
+  .top-card.virtue .nm{color:var(--virtue-deep)}
+  .diff{margin-top:12px;text-align:center;font-size:13px;color:var(--ink-2)}
+  .diff b{font-size:17px;margin:0 3px}
+  .diff .pos{color:var(--sin-deep)} .diff .neg{color:var(--virtue-deep)} .diff .mid{color:var(--muted)}
+
+  .panel{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:22px;margin-top:20px;box-shadow:var(--shadow-sm)}
+  .panel-title{font-size:15px;font-weight:700;display:flex;align-items:center;gap:8px;margin-bottom:4px}
+  .panel-title::before{content:"";width:4px;height:15px;border-radius:2px;background:linear-gradient(180deg,var(--sin),var(--virtue))}
+  .panel-sub{font-size:12px;color:var(--muted);margin-bottom:16px}
+  .radar-wrap{width:100%;height:340px;position:relative}
+  .radar-legend{display:flex;justify-content:center;gap:20px;font-size:12.5px;color:var(--ink-2);margin-top:6px}
+  .legend-dot{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:6px;vertical-align:-1px}
+
+  .dim-list{display:flex;flex-direction:column;gap:10px;margin-top:6px}
+  .dim-row{display:grid;grid-template-columns:64px 1fr 40px;align-items:center;gap:12px}
+  .dim-row .dn{font-size:13.5px;font-weight:500;color:var(--ink)}
+  .dim-row .bar{height:8px;border-radius:999px;background:var(--bg-2);overflow:hidden}
+  .dim-row .bar i{display:block;height:100%;border-radius:999px}
+  .dim-row.sin .bar i{background:var(--sin)}
+  .dim-row.virtue .bar i{background:var(--virtue)}
+  .dim-row .dv{font-size:13px;color:var(--ink-2);text-align:right;font-variant-numeric:tabular-nums}
+
+  .ana-grid{display:flex;flex-direction:column;gap:16px;margin-top:4px}
+  .ana-item .ah{display:flex;align-items:center;gap:7px;font-size:14px;font-weight:700;margin-bottom:8px;color:var(--ink)}
+  .ana-item .ah svg{flex:none}
+  .ana-item ul{list-style:none}
+  .ana-item li{font-size:14px;color:var(--ink-2);line-height:1.75;margin-bottom:8px}
+  .overview p{font-size:14.5px;color:var(--ink-2);line-height:1.8}
+
+  .res-foot{margin-top:22px;text-align:center;font-size:11.5px;color:#B3ADA2;line-height:1.8}
+  .restart-wrap{margin-top:20px}
+  .fade-in{animation:fade .4s ease}
+
+  /* ===== 密码锁 ===== */
+  .lock-card{min-height:100vh;display:flex;flex-direction:column;justify-content:center;text-align:center;padding:40px 4px}
+  .lock-icon{width:64px;height:64px;margin:0 auto 20px;color:var(--accent-deep)}
+  .lock-title{font-size:22px;font-weight:700;font-family:"Noto Serif SC",serif}
+  .lock-sub{margin-top:8px;font-size:13px;color:var(--muted)}
+  #lock-fields{margin-top:28px;display:flex;flex-direction:column;gap:12px}
+  #lock-fields input{width:100%;padding:15px 16px;border:1.5px solid var(--line);border-radius:14px;background:var(--card);font-size:15px;font-family:inherit;color:var(--ink);outline:none;transition:border .15s ease}
+  #lock-fields input:focus{border-color:var(--accent)}
+  #lock-fields input::placeholder{color:#B3ADA2}
+  .lock-err{margin-top:12px;font-size:12.5px;color:var(--sin-deep);min-height:18px}
+  .link-btn{margin-top:20px;border:none;background:none;color:#B3ADA2;font-size:12px;cursor:pointer;font-family:inherit;text-decoration:underline}
+  .lock-admin{margin-top:18px;background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:20px;text-align:left}
+  .lock-admin h4{margin:0 0 12px}
+  .lock-admin input{width:100%;padding:13px 14px;border:1.5px solid var(--line);border-radius:12px;background:var(--card);font-size:14px;font-family:inherit;color:var(--ink);outline:none;transition:border .15s ease}
+  .lock-admin input:focus{border-color:var(--accent)}
+  .lock-admin input::placeholder{color:#B3ADA2}
+  .lock-admin .btn{margin-top:12px}
+  .lock-admin .gen-tip{margin-top:6px;font-size:12px;color:var(--muted);line-height:1.6}
+  .gen-out{margin-top:12px;font-size:14px;font-weight:600;color:var(--accent-deep);word-break:break-all}
+  .shake{animation:shake .4s}
+  @keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+</style>
+</head>
+<body>
+<div id="app">
+
+  <!-- ===== 视图：密码锁 ===== -->
+  <section id="view-lock" class="view active">
+    <div class="lock-card">
+      <div class="lock-icon">
+        <svg width="64" height="64" viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="4" y="10" width="16" height="11" rx="2.5" stroke="currentColor" stroke-width="1.8"/><path d="M8 10V7a4 4 0 018 0v3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><circle cx="12" cy="15" r="1.6" fill="currentColor"/></svg>
+      </div>
+      <div class="lock-title">输入测试密码</div>
+      <div class="lock-sub">本测试为付费内容，凭卖家发送的密码进入</div>
+      <div id="lock-fields">
+        <input type="text" id="lock-name" placeholder="您的客户编号 / 昵称" autocomplete="off" style="display:none">
+        <input type="password" id="lock-input" placeholder="请输入测试密码" autocomplete="off">
+        <button class="btn btn-primary" id="lock-btn" type="button">进入测试</button>
+      </div>
+      <div class="lock-err" id="lock-err"></div>
+      <button class="link-btn" id="admin-toggle" type="button">管理员入口</button>
+      <div class="lock-admin" id="lock-admin" style="display:none">
+        <h4 class="serif">管理员面板</h4>
+        <input type="password" id="admin-key" placeholder="管理员密码" autocomplete="off">
+        <button class="btn btn-ghost" id="admin-unlock" type="button">解锁面板</button>
+        <div id="admin-content"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== 视图：首页 ===== -->
+  <section id="view-home" class="view">
+    <div class="home-hero">
+      <svg class="logo-mark" viewBox="0 0 96 96" fill="none" aria-hidden="true">
+        <circle cx="38" cy="48" r="30" stroke="#B5766F" stroke-width="4"/>
+        <circle cx="58" cy="48" r="30" stroke="#9B86A8" stroke-width="4"/>
+        <circle cx="38" cy="48" r="8" fill="#B5766F" opacity=".7"/>
+        <circle cx="58" cy="48" r="8" fill="#9B86A8" opacity=".7"/>
+      </svg>
+      <div class="home-kicker">SEVEN SINS · SEVEN VIRTUES</div>
+      <h1 class="home-title">明暗双生</h1>
+      <p class="home-sub">七罪七德 · 十四维人格光谱测试</p>
+      <div class="meta-chips">
+        <span class="chip">35 题</span>
+        <span class="chip">约 5–7 分钟</span>
+        <span class="chip">14 个维度</span>
+      </div>
+    </div>
+
+    <div class="home-intro">
+      <p>人性从不是非黑即白。我们每个人心里，都住着两股方向相反的力量：一股顺着本能，追逐即时的满足，也下意识地保护自己，另一股望向更远处，愿意为更长久、更重要的价值，按下冲动与欲望的暂停键。</p>
+      <p>它们没有绝对的好坏，只在于不同处境里，你最先被唤醒的是哪一面。本测试将带你看见属于自己的明暗光谱。</p>
+      <div class="dual">
+        <div><b class="s">七宗罪</b>傲慢 · 嫉妒 · 暴怒 · 懒惰<br>贪婪 · 暴食 · 色欲</div>
+        <div><b class="v">七美德</b>谦卑 · 仁爱 · 耐心 · 勤勉<br>慷慨 · 节制 · 贞洁</div>
+      </div>
+    </div>
+
+    <div class="start-wrap">
+      <button class="btn btn-primary" id="btn-start" type="button">开始测试</button>
+    </div>
+    <p class="note">凭第一直觉作答，无需反复揣摩“更正确”的答案<br>作答后自动进入下一题，可随时返回修改</p>
+    <p class="home-foot">测试仅供娱乐与自我探索<br>不构成任何道德评判或心理诊断，尊重每一个独立的个体</p>
+  </section>
+
+  <!-- ===== 视图：答题 ===== -->
+  <section id="view-quiz" class="view">
+    <div class="quiz-top">
+      <div class="quiz-meta">
+        <button class="back-btn" id="btn-prev" type="button">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M15 5l-7 7 7 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          上一题
+        </button>
+        <div class="counter"><b id="cur-num">1</b> / <span id="total-num">35</span></div>
+      </div>
+      <div class="progress"><div class="progress-fill" id="progress-fill"></div></div>
+    </div>
+    <div class="q-card">
+      <div class="q-text" id="q-text"></div>
+      <div class="opts" id="q-opts"></div>
+      <div class="q-nav">
+        <button class="btn btn-ghost" id="btn-skip" type="button">上一题</button>
+        <button class="btn btn-primary" id="btn-next" type="button">下一题</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== 视图：结果 ===== -->
+  <section id="view-result" class="view">
+    <div class="res-hero">
+      <div class="kicker">YOUR PERSONALITY SPECTRUM</div>
+      <h1 class="t serif">你的明暗人格光谱</h1>
+    </div>
+
+    <div class="top-cards">
+      <div class="top-card sin">
+        <div class="lb">七宗罪之首</div>
+        <div class="nm" id="r-sin-top">—</div>
+        <div class="vl" id="r-sin-top-v">—</div>
+      </div>
+      <div class="top-card virtue">
+        <div class="lb">七美德之首</div>
+        <div class="nm" id="r-virtue-top">—</div>
+        <div class="vl" id="r-virtue-top-v">—</div>
+      </div>
+    </div>
+    <div class="diff" id="r-diff">美德 − 罪性差值 <b>—</b></div>
+
+    <div class="panel">
+      <div class="panel-title">十四维人格雷达</div>
+      <div class="panel-sub">红色为七宗罪，紫色为七美德，数值 0–100</div>
+      <div class="radar-wrap" id="radar"></div>
+      <div class="radar-legend">
+        <span><i class="legend-dot" style="background:var(--virtue)"></i>七美德</span>
+        <span><i class="legend-dot" style="background:var(--sin)"></i>七宗罪</span>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-title">14 维明细</div>
+      <div class="panel-sub">点按某一维可查看它的含义</div>
+      <div class="dim-list" id="dim-list"></div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-title">心理解析</div>
+      <div class="panel-sub">基于你的作答倾向生成，仅供自我探索</div>
+      <div class="ana-grid">
+        <div class="ana-item overview">
+          <div class="ah" style="color:#B5927A">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 12h4l3-8 4 16 3-8h2" stroke="#B5927A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            总体概览
+          </div>
+          <p id="r-overview"></p>
+        </div>
+        <div class="ana-item">
+          <div class="ah" style="color:#7C8B82">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="12" cy="12" r="8" stroke="#7C8B82" stroke-width="2"/><circle cx="12" cy="12" r="3" fill="#7C8B82"/></svg>
+            相处特点
+          </div>
+          <ul id="r-interact"></ul>
+        </div>
+        <div class="ana-item">
+          <div class="ah" style="color:#9B86A8">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 3l2.6 5.3 5.9.9-4.2 4.1 1 5.8L12 16.9 6.7 19l1-5.8L3.5 9.2l5.9-.9z" stroke="#9B86A8" stroke-width="1.6" stroke-linejoin="round"/></svg>
+            你的优势
+          </div>
+          <ul id="r-strength"></ul>
+        </div>
+        <div class="ana-item">
+          <div class="ah" style="color:#B5766F">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 21c-4-3-7-5.5-7-9.5A4 4 0 0112 9a4 4 0 017 2.5c0 4-3 6.5-7 9.5z" stroke="#B5766F" stroke-width="1.8" stroke-linejoin="round"/></svg>
+            容易委屈自己的地方
+          </div>
+          <ul id="r-wrong"></ul>
+        </div>
+        <div class="ana-item">
+          <div class="ah" style="color:#7E9BB0">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M9 12h6M12 9v6" stroke="#7E9BB0" stroke-width="2" stroke-linecap="round"/><path d="M4 12a8 8 0 1016 0 8 8 0 00-16 0z" stroke="#7E9BB0" stroke-width="1.8"/></svg>
+            给你的建议
+          </div>
+          <ul id="r-advice"></ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="restart-wrap">
+      <button class="btn btn-ghost" id="btn-restart" type="button">重新测试</button>
+    </div>
+    <p class="res-foot">测试仅供娱乐与自我探索<br>不构成道德评判或心理诊断，尊重每一个独立的个体</p>
+  </section>
+
+</div>
+<script src="assets/echarts.min.js"></script>
+<script>
+/* echarts 本地加载失败时（例如只上传了 html、未上传 assets/echarts.min.js），
+   自动改用 jsDelivr 在线库，保证 GitHub Pages 等公开网页上雷达图正常显示 */
+function ensureEcharts(cb){
+  if(window.echarts){ cb(); return; }
+  var s=document.createElement('script');
+  s.src='https://cdn.jsdelivr.net/npm/echarts@5.5.1/dist/echarts.min.js';
+  s.onload=function(){ if(window.echarts){ cb(); } };
+  s.onerror=function(){ /* 本地与 CDN 均不可用时，雷达保持空白 */ };
+  document.head.appendChild(s);
+}
+</script>
+<script>
+/* ===== 14 维定义（含各维度心理文本） ===== */
+var DIMS = {
+  pride:{zh:'傲慢',en:'Pride',side:'sin',mate:'humility',
+    interact:'你习惯主动承担、主导方向，身边人也容易依赖你的判断，只是表达有时过于笃定，会让不同的声音难以说出口。',
+    strength:'目标感强、有担当，能扛起责任并为结果负责，在压力下也保持自己的标准。',
+    selfwrong:'你很少示弱，习惯把难处自己扛，怕开口求助显得“不行”，有时宁可逞强也不愿麻烦别人。',
+    suggest:'把“我最在意的结果”和“别人真实的感受”放在同一杆秤上，留一点空间听听反对声，你会更有力量。'},
+  envy:{zh:'嫉妒',en:'Envy',side:'sin',mate:'kindness',
+    interact:'你对优秀很敏感，会不自觉拿自己和别人比较，这种较劲让你上进，却也容易让关系里多出一层淡淡的距离。',
+    strength:'自尊心和好胜心强，不甘平庸，会因“想追上”而持续精进，是推动自己成长的燃料。',
+    selfwrong:'你总把别人的拥有当成对自己的提醒，容易在比较里忽略已有的东西，常常觉得“我还不够”。',
+    suggest:'看到别人优秀时，把“凭什么”换成“我可以学什么”，并每天肯定一件自己已经做到的事。'},
+  wrath:{zh:'暴怒',en:'Wrath',side:'sin',mate:'patience',
+    interact:'你情绪鲜明、爱憎分明，遇到不公会立刻站出来，直来直去让人安心，但冲动时也可能说出收不回去的话。',
+    strength:'有原则、有血性，敢为不公平发声，是朋友身边让人有安全感的存在。',
+    selfwrong:'你常常憋着火不发作，把不满咽下去“为了和气”，次数多了，最累的反而是你自己。',
+    suggest:'愤怒来的时候，先给自己一个深呼吸的节拍再开口，把“你让我生气”说成“我感到……”，冲突会少很多。'},
+  sloth:{zh:'懒惰',en:'Sloth',side:'sin',mate:'diligence',
+    interact:'你追求舒适、不喜被推着走，相处轻松没有压迫感，但重要的事若总往后放，会让信任你的人干着急。',
+    strength:'懂得休息、不内耗，能保持松弛的节奏，不太容易被焦虑绑架，反而更能看淡得失。',
+    selfwrong:'你常把“算了”挂在嘴边，其实不是不想做，而是怕开始后做不好，于是干脆不动，内心却不甘。',
+    suggest:'把大目标拆成“今天只做五分钟”的小动作，先开始再谈好坏，完成一点点，会比躺平舒服得多。'},
+  greed:{zh:'贪婪',en:'Greed',side:'sin',mate:'generosity',
+    interact:'你对机会和资源有敏锐的嗅觉，习惯先守住自己的部分，务实可靠，但也容易让人觉得有点“算计”。',
+    strength:'务实、有危机感，做事会为长远打算，善于保护和经营自己的资源。',
+    selfwrong:'你把“够”的门槛抬得很高，总觉得再攒一点才安心，常年在得到之后又想要更多，反而停不下来享受。',
+    suggest:'给“够了”定一个具体的标准，学会在拥有时真心说一句“这样就很好”，安全感不只在占有里。'},
+  gluttony:{zh:'暴食',en:'Gluttony',side:'sin',mate:'temperance',
+    interact:'你享受当下、活得尽兴，和你有来有往很快乐，只是“再来一点”的惯性，有时会打乱你原本的节奏。',
+    strength:'感官敏锐、懂得享受生活，能从平凡小事里获得快乐，是个容易哄自己开心的人。',
+    selfwrong:'你常用“奖励自己”来安抚情绪，等回过神来已经过量，事后又自责，却总在下一次重复。',
+    suggest:'想吃、想买之前先停十秒问自己“现在真的需要吗”，把冲动和需要分开，快乐会更长久。'},
+  lust:{zh:'色欲',en:'Lust',side:'sin',mate:'chastity',
+    interact:'你对亲密和吸引力坦率直接，热情外放让人愿意靠近，但边界感若不够清晰，容易让自己或对方多想。',
+    strength:'情感真挚、敢爱敢表达，不压抑自己的渴望，活得坦诚而鲜活。',
+    selfwrong:'你容易把“被喜欢”当成价值，为了留住一份亲近而迁就，忽略了自己真正想要的关系。',
+    suggest:'亲密之前先问自己“我要的是一时心动，还是一段经得起相处的关系”，对自己诚实，才不委屈。'},
+
+  humility:{zh:'谦卑',en:'Humility',side:'virtue',mate:'pride',
+    interact:'你温和低调、善于倾听，和人相处几乎没有攻击性，让人愿意把话讲给你听。',
+    strength:'虚心、包容、能换位思考，是团队里让人舒服的润滑剂，懂得把功劳分给大家。',
+    selfwrong:'你常常把自己放得很低，明明做得好也不敢认，习惯退让，把机会一次次让给别人。',
+    suggest:'学会大大方方地说“这件事我做得不错”，你的价值不需要靠贬低自己来证明。'},
+  kindness:{zh:'仁爱',en:'Kindness',side:'virtue',mate:'envy',
+    interact:'你真诚温暖、乐于付出，朋友需要时你总会伸出援手，是人群里让人安心的那一个。',
+    strength:'同理心强、关怀他人，能敏锐察觉别人的难处并主动帮忙，拥有让人信赖的温柔。',
+    selfwrong:'你把“照顾别人”排在照顾自己前面，总怕拒绝让人失望，常常心软答应，最后累到自己。',
+    suggest:'善良要有边界：学会在有余力时才帮忙，拒绝不是冷漠，而是对自己负责。'},
+  patience:{zh:'耐心',en:'Patience',side:'virtue',mate:'wrath',
+    interact:'你情绪稳定、很少着急，愿意等待和包容，是能稳住场面、让人安心靠近的人。',
+    strength:'沉得住气、抗压强，面对延迟和反复不易烦躁，是长期主义的底气。',
+    selfwrong:'你习惯了把不满咽下去，宁可自己忍也不愿起冲突，长期下来，心里的委屈越攒越多。',
+    suggest:'耐心不等于忍气吞声：把让你不舒服的事说出来，用平静的方式表达，才算真的对彼此负责。'},
+  diligence:{zh:'勤勉',en:'Diligence',side:'virtue',mate:'sloth',
+    interact:'你靠谱、说到做到，习惯用行动说话，身边人信任你，因为知道“答应的事就会做完”。',
+    strength:'自律、有条理、执行力强，能把想法一步步变成结果，是值得托付的伙伴。',
+    selfwrong:'你容易把“忙”当作价值，用不停做事来填满自己，停下来反而会慌，忽略了自己也需要休息。',
+    suggest:'把“休息”也排进计划里，允许自己停一停，真正的自律是学会分配，而不是透支。'},
+  generosity:{zh:'慷慨',en:'Generosity',side:'virtue',mate:'greed',
+    interact:'你乐于分享、不计较得失，和人相处大方坦荡，身边人愿意把好东西也分给你。',
+    strength:'大方、重情义，愿意分享时间与善意，是朋友间让人感到温暖的给予者。',
+    selfwrong:'你习惯先满足别人，觉得“自己少拿一点没关系”，久了容易忽略自己的需要，甚至被利用。',
+    suggest:'给予前先确认自己有余力，学会在合理范围为自己争取，你的大方才可持续。'},
+  temperance:{zh:'节制',en:'Temperance',side:'virtue',mate:'gluttony',
+    interact:'你分寸感强、习惯平衡，很少冲动行事，和人相处让人觉得理性、可靠、不过界。',
+    strength:'自律、懂分寸，不轻易透支身体和时间，是把生活经营得稳妥的人。',
+    selfwrong:'你把“克制”用得太狠，连正常的享受都舍不得，偶尔放松反而会有负罪感。',
+    suggest:'节制是“有度”而不是“没有”：留一点余地给自己享受，自律才不会变成苛刻。'},
+  chastity:{zh:'贞洁',en:'Chastity',side:'virtue',mate:'lust',
+    interact:'你重承诺、守界限，在关系里清醒而坚定，让人感到踏实、值得托付。',
+    strength:'忠于承诺、内心澄明，面对诱惑能守住原则，是可靠而自持的人。',
+    selfwrong:'你有时把“守住原则”变成压抑真实感受，明明心动了也立刻关上，不敢诚实面对自己的情感需求。',
+    suggest:'原则是为了保护你，而不是捆绑你：诚实面对自己的情感，允许它在界限内流动。'}
+};
+
+/* ===== 各维度「含义」文案：随测试分值变化 ===== */
+var DEF = {
+  pride:'代表对认可、地位与自我价值的在意程度',
+  envy:'代表对他人的拥有与成功的在意程度',
+  wrath:'代表情绪被点燃并向外释放的强烈程度',
+  sloth:'代表对省力与维持现状的偏好程度',
+  greed:'代表对资源、机会与获得的占有欲',
+  gluttony:'代表对感官享受与即时满足的依赖',
+  lust:'代表对亲密、吸引与欲望的渴求强度',
+  humility:'代表谦和、虚己与不争的姿态',
+  kindness:'代表对他人真诚的关怀与善意',
+  patience:'代表沉住气、能等待与包容的韧性',
+  diligence:'代表自律、坚持与把事做成的执行力',
+  generosity:'代表乐于分享、不计较得失的给予倾向',
+  temperance:'代表有度、平衡与自我约束的分寸感',
+  chastity:'代表对承诺、原则与界限的坚守'
+};
+var LOW = {
+  pride:'你更少争强好胜，愿意放下姿态，不强求被看见。',
+  envy:'你更能为他人的成就由衷高兴，很少因比较而失衡。',
+  wrath:'你更能稳住情绪，遇事不易被激怒，表达更克制。',
+  sloth:'你更愿意主动行动，把想法落成计划并持续推进。',
+  greed:'你更容易知足，愿意分享，较少为“不够”而焦虑。',
+  gluttony:'你更能节制享受，懂得适可而止，节奏更自律。',
+  lust:'你更能守住承诺与界限，在关系里保持清醒与克制。',
+  humility:'你更自信外显，敢于展现自己，勇于争取机会。',
+  kindness:'你更关注自己的边界与需要，懂得先照顾好自己。',
+  patience:'你情绪更直接，遇事更快表达，不喜欢拖泥带水。',
+  diligence:'你更看重当下的松弛与自由，不愿被固定节奏束缚。',
+  generosity:'你更会先守住自己的资源，再考虑是否分享。',
+  temperance:'你更愿意尽情享受当下，跟随感觉去生活。',
+  chastity:'你更跟随本心的感受而活，不被规则过度束缚。'
+};
+
+/* ===== 35 道情景题（每对 5 题） ===== */
+/* 选项计分：A=罪+3 · B=罪+2/德+1 · C=罪+1/德+2 · D=德+3 */
+var QUESTIONS = [
+  /* 傲慢 ↔ 谦卑 */
+  {sin:'pride',virtue:'humility',q:'项目成功，领导当众表扬你，你的第一反应是？',opts:['坦然接受，并顺势多讲几句自己的功劳','心里很得意，嘴上客气地说“不敢当”','归功于团队，强调大家协作的结果','有点不好意思，觉得自己还有很多不足']},
+  {sin:'pride',virtue:'humility',q:'同事当众指出你的错误，你会……',opts:['立刻反驳，维护自己的专业形象','心里不舒服，表面勉强接受','承认错误，但补充说明客观原因','真诚道谢，并把教训记下来']},
+  {sin:'pride',virtue:'humility',q:'你在一次比赛中赢了，你如何看待自己？',opts:['我本来就比他们强','这次运气和准备都不错','对手也很强，我赢在细节','有些侥幸，别人也很优秀']},
+  {sin:'pride',virtue:'humility',q:'和新认识的人聊天，话题聊到你擅长的领域……',opts:['忍不住想展示自己的专业水平','会聊一些，但注意不显得卖弄','主动把话题引到对方身上','认真倾听，对方不问就不多说']},
+  {sin:'pride',virtue:'humility',q:'面对一个你不太懂的领域，有人在那里夸夸其谈，你……',opts:['觉得对方不过如此，心里不屑','有点想纠正，但忍住了没说','保持开放，听听有没有道理','主动请教，不耻下问']},
+  /* 嫉妒 ↔ 仁爱 */
+  {sin:'envy',virtue:'kindness',q:'好朋友升职加薪，你第一时间的感受是？',opts:['心里有点酸，觉得凭什么是他','恭喜他，但暗暗较劲要追上','有点羡慕，但更多的是祝福','真心为他高兴，还张罗着庆祝']},
+  {sin:'envy',virtue:'kindness',q:'看到别人在朋友圈晒旅行、新家，你……',opts:['越看越烦，觉得他们在炫耀','忍不住拿自己的生活去比较','有点羡慕，但很快转移注意力','替他们开心，真心祝福']},
+  {sin:'envy',virtue:'kindness',q:'一个能力看起来不如你的人被领导赏识，你……',opts:['觉得领导看走了眼','心里不服，想办法表现自己','观察对方的优点，承认他有可取之处','为他高兴，也反思自己还能学什么']},
+  {sin:'envy',virtue:'kindness',q:'同事遇到困难向你求助，而你正忙，你……',opts:['觉得他的麻烦是自己造成的，懒得理','不太情愿，简单应付两句','放下手头的事，帮他一把','主动帮忙，还陪他一起想办法']},
+  {sin:'envy',virtue:'kindness',q:'路上看到陌生人陷入困境（摔倒、迷路），你……',opts:['觉得不关我的事，匆匆走开','犹豫了一下，还是走了','上前问一句，能帮就帮','主动伸手，帮到底再走']},
+  /* 暴怒 ↔ 耐心 */
+  {sin:'wrath',virtue:'patience',q:'有人插队还态度嚣张，你会……',opts:['火冒三丈，上前理论甚至争吵','很生气，冷着脸讽刺他几句','深呼吸，平静地提醒对方排队','懒得计较，换个位置排']},
+  {sin:'wrath',virtue:'patience',q:'排队或等餐等了很久，你……',opts:['越来越烦躁，想投诉、发脾气','不耐烦地反复看时间','找点事做，分散注意力','坦然接受，当成难得的放空']},
+  {sin:'wrath',virtue:'patience',q:'发言时被人反复打断，你……',opts:['提高音量，把话头抢回来','脸色难看，语气变冲','停下来，让对方先说','心平气和地听他说完']},
+  {sin:'wrath',virtue:'patience',q:'精心准备的方案被一票否决，你……',opts:['当场情绪失控，据理力争到底','很生气，强压着火气','平静下来，先听对方理由','虚心接受，琢磨怎么改进']},
+  {sin:'wrath',virtue:'patience',q:'网络或系统卡顿，页面半天打不开，你……',opts:['摔鼠标，疯狂点刷新','烦躁地不停抱怨','去做别的事，回头再看','趁这时间喝杯水放松一下']},
+  /* 懒惰 ↔ 勤勉 */
+  {sin:'sloth',virtue:'diligence',q:'周末下午，你通常……',opts:['瘫在沙发上刷手机一整天','能躺则躺，想到什么再说','安排了运动或阅读','早起，把计划表一项项做完']},
+  {sin:'sloth',virtue:'diligence',q:'一件不急但重要的任务，你……',opts:['拖到最后一刻才动手','能拖就拖，直到不得不做','心里惦记，提前安排时间','当天就开始，有条不紊地推进']},
+  {sin:'sloth',virtue:'diligence',q:'发现家里或桌面很乱，你……',opts:['看着心烦，但懒得收拾','过几天实在看不下去才弄','顺手整理一下','定期打扫，保持整洁']},
+  {sin:'sloth',virtue:'diligence',q:'面对一件需要长期坚持的事（健身、学习），你……',opts:['三分钟热度，很快就放弃','断断续续，靠意志力硬撑','设定目标，坚持一段时间','养成习惯，雷打不动地执行']},
+  {sin:'sloth',virtue:'diligence',q:'老板布置的任务可以“糊弄过去”，你……',opts:['能省则省，差不多就行','敷衍完成，不太上心','认真做完，但不过度','高标准完成，还会多想一步']},
+  /* 贪婪 ↔ 慷慨 */
+  {sin:'greed',virtue:'generosity',q:'朋友借钱周转，你手头正好宽裕，你……',opts:['借了也总惦记，怕还不回来','不大情愿，勉强借一点','爽快借出，说不用急着还','主动多借一些，说不够再开口']},
+  {sin:'greed',virtue:'generosity',q:'公司发福利，多出来一份没人领，你……',opts:['想尽办法把它拿到手','想要，但不好意思去拿','无所谓，谁拿都行','主动让给别人']},
+  {sin:'greed',virtue:'generosity',q:'一场活动有抽奖，奖品很诱人，你……',opts:['想尽办法多占几个机会','会多抽几次碰碰运气','抽一次试试，抽不到就放手','无所谓，重在参与']},
+  {sin:'greed',virtue:'generosity',q:'你有一件好东西（好吃的、资源），朋友也想尝尝，你……',opts:['不太想分享，想自己留着','分一点点意思一下','大方分享，一起享用','主动分给大家，自己留少的']},
+  {sin:'greed',virtue:'generosity',q:'面前有个“能多赚一点”的机会，但要损害别人一点利益，你……',opts:['抓住机会，先到手再说','有点纠结，最后还是拿了','觉得不踏实，放弃了','坚决不占，宁可自己少得']},
+  /* 暴食 ↔ 节制 */
+  {sin:'gluttony',virtue:'temperance',q:'面对自助餐或丰盛的大餐，你……',opts:['吃到撑，扶墙出来','比平时吃得多不少','适量取食，吃到八分饱','克制地吃，注意健康']},
+  {sin:'gluttony',virtue:'temperance',q:'深夜突然想吃宵夜或高热量食物，你……',opts:['想吃就吃，管不住','忍一会儿，多半最后还是吃了','忍一忍，用别的事转移注意力','果断忍住，早点睡觉']},
+  {sin:'gluttony',virtue:'temperance',q:'喜欢的甜食、零食囤了一堆，你……',opts:['一晚上能消灭大半','边看剧边吃，不知不觉吃完','控制量，一天只吃一点','只偶尔尝一点，其余收起来']},
+  {sin:'gluttony',virtue:'temperance',q:'看到心动的商品打折，你……',opts:['先买为敬，不考虑需不需要','犹豫半天，多半还是会买','想想是否真的需要，再做决定','已有的就不买，克制欲望']},
+  {sin:'gluttony',virtue:'temperance',q:'平时你的饮食与作息……',opts:['想吃就吃，想熬夜就熬夜','比较随性，不太规律','大体规律，偶尔放纵','规律健康，严格控制']},
+  /* 色欲 ↔ 贞洁 */
+  {sin:'lust',virtue:'chastity',q:'遇到很有吸引力的人，对方也对你有好感，你……',opts:['心动了就主动出击，不犹豫','会热情回应，顺着感觉走','保持分寸，先了解清楚','尊重界限，不轻易越界']},
+  {sin:'lust',virtue:'chastity',q:'恋爱中，遇到更优秀、更有魅力的追求者，你……',opts:['心里动摇，会考虑对方','有点心动，但不会行动','明确拒绝，保持距离','毫不犹豫忠于现任，坚守承诺']},
+  {sin:'lust',virtue:'chastity',q:'关于亲密关系与身体界限，你……',opts:['觉得两情相悦就该随心而行','比较开放，看感觉','尊重双方意愿，谨慎推进','坚持原则，守住适当界限']},
+  {sin:'lust',virtue:'chastity',q:'深夜独处、容易生出冲动念头时，你……',opts:['顺着念头走，不压抑自己','会纠结，但多半顺其自然','用别的事转移注意力','保持自律，克制冲动']},
+  {sin:'lust',virtue:'chastity',q:'面对暧昧或暧昧对象，你……',opts:['来者不拒，享受暧昧','会试探，看对方反应','明确关系，不玩模糊','不搞暧昧，尊重对方也尊重自己']}
+];
+/* ===== 状态 ===== */
+var SIN_ORDER = ['pride','envy','wrath','sloth','greed','gluttony','lust'];
+var VIRT_ORDER = ['humility','kindness','patience','diligence','generosity','temperance','chastity'];
+var ANSWERS = new Array(QUESTIONS.length).fill(null);
+var current = 0;
+var OPT_LETTERS = ['A','B','C','D'];
+var PAIR_ORDER = [['pride','humility'],['envy','kindness'],['wrath','patience'],['sloth','diligence'],['greed','generosity'],['gluttony','temperance'],['lust','chastity']];
+
+/* ===== 付费密码锁（可自行修改） =====
+   mode: 'single' = 一个固定密码（发给所有客户）；'per' = 每客户一个密码
+   password: single 模式的固定密码，请自行修改
+   salt: per 模式生成客户密码时混入的盐，请自行修改（改动后已生成的密码会失效）
+   adminKey: 打开「卖家面板」的管理员密码，请自行修改
+*/
+var LOCK = {
+  mode:'per',
+  password:'2026sins',
+  salt:'mdshuang',
+  adminKey:'date253311'
+};
+var UNLOCKED = false;
+try{ UNLOCKED = sessionStorage.getItem('md_unlocked')==='1'; }catch(e){}
+
+/* 客户密码 = 对（客户编号 + salt）做哈希，取前6位大写字母数字 */
+function codeHash(s){
+  var h=0;
+  for(var i=0;i<s.length;i++){ h=(h*31 + s.charCodeAt(i)) & 0x7fffffff; }
+  return ('0000'+h.toString(36)).slice(-6).toUpperCase();
+}
+
+/* ===== 视图切换 ===== */
+function showView(name){
+  ['view-lock','view-home','view-quiz','view-result'].forEach(function(id){
+    var el=document.getElementById(id);
+    if(id==='view-'+name){ el.classList.add('active'); }
+    else{ el.classList.remove('active'); }
+  });
+  window.scrollTo(0,0);
+}
+
+/* ===== 密码锁 ===== */
+function initLockUI(){
+  var nameEl=document.getElementById('lock-name');
+  if(LOCK.mode==='per'){
+    nameEl.style.display='block';
+    document.getElementById('lock-input').placeholder='请输入客户密码';
+  }else{
+    nameEl.style.display='none';
+    document.getElementById('lock-input').placeholder='请输入测试密码';
+  }
+}
+function lockErr(msg){
+  document.getElementById('lock-err').textContent=msg;
+  var card=document.querySelector('.lock-card');
+  card.classList.remove('shake'); void card.offsetWidth; card.classList.add('shake');
+}
+function tryUnlock(){
+  if(LOCK.mode==='per'){
+    var n=document.getElementById('lock-name').value.trim().toLowerCase();
+    var c=document.getElementById('lock-input').value.trim().toUpperCase();
+    if(!n||!c){ lockErr('请填写客户编号和客户密码'); return; }
+    if(codeHash(n+LOCK.salt)===c){ unlock(); }
+    else{ lockErr('客户编号或密码不正确，请核对后重试'); }
+  }else{
+    if(document.getElementById('lock-input').value===LOCK.password){ unlock(); }
+    else{ lockErr('密码不正确，请核对后重试'); }
+  }
+}
+function unlock(){
+  UNLOCKED=true;
+  try{ sessionStorage.setItem('md_unlocked','1'); }catch(e){}
+  document.getElementById('lock-admin').style.display='none';
+  document.getElementById('admin-toggle').style.display='none';
+  document.getElementById('lock-input').value='';
+  document.getElementById('lock-err').textContent='';
+  showView('home');
+  if(location.hash!=='#/'){ location.hash='#/'; }
+}
+function copyText(t){
+  var ta=document.createElement('textarea');
+  ta.value=t; ta.style.position='fixed'; ta.style.opacity='0';
+  document.body.appendChild(ta); ta.select();
+  try{ document.execCommand('copy'); }catch(e){}
+  document.body.removeChild(ta);
+}
+function renderAdminContent(){
+  var box=document.getElementById('admin-content');
+  if(LOCK.mode==='per'){
+    box.innerHTML='<div class="gen-tip">输入客户编号 / 昵称，为其生成唯一密码：</div>'
+      +'<input type="text" id="gen-name" placeholder="客户编号 / 昵称" autocomplete="off" style="margin-top:10px">'
+      +'<button class="btn btn-ghost" id="gen-btn" type="button">生成密码</button>'
+      +'<div class="gen-out" id="gen-out"></div>';
+    box.querySelector('#gen-btn').addEventListener('click', function(){
+      var n=box.querySelector('#gen-name').value.trim();
+      var out=box.querySelector('#gen-out');
+      if(!n){ out.textContent='请先输入客户编号'; return; }
+      var code=codeHash(n.toLowerCase()+LOCK.salt);
+      out.textContent='客户「'+n+'」的密码：'+code;
+      copyText(code);
+    });
+  }else{
+    box.innerHTML='<div class="gen-tip">当前固定密码：</div>'
+      +'<div class="gen-out">'+LOCK.password+'</div>'
+      +'<div class="gen-tip">如需修改，请编辑源码顶部 LOCK.password</div>';
+  }
+}
+
+/* ===== 答题 ===== */
+function renderQuestion(){
+  var q=QUESTIONS[current];
+  document.getElementById('q-text').textContent = q.q;
+  document.getElementById('cur-num').textContent = current+1;
+  document.getElementById('total-num').textContent = QUESTIONS.length;
+  var answered = ANSWERS.filter(function(a){return a!=null;}).length;
+  document.getElementById('progress-fill').style.width = Math.round(answered/QUESTIONS.length*100)+'%';
+
+  var box=document.getElementById('q-opts');
+  box.innerHTML='';
+  q.opts.forEach(function(text,i){
+    var btn=document.createElement('button');
+    btn.type='button';
+    btn.className='opt'+(ANSWERS[current]===i?' sel':'');
+    btn.innerHTML='<span class="ol">'+OPT_LETTERS[i]+'</span><span>'+text+'</span>';
+    btn.addEventListener('click',function(){ choose(i,btn); });
+    box.appendChild(btn);
+  });
+}
+
+function choose(i,btn){
+  if(ANSWERS[current]===i) return;
+  ANSWERS[current]=i;
+  var opts=btn.parentNode.querySelectorAll('.opt');
+  opts.forEach(function(o,ix){ o.classList.toggle('sel', ix===i); });
+  updateProgress();
+  var answered = ANSWERS.filter(function(a){return a!=null;}).length;
+  if(current < QUESTIONS.length-1){
+    setTimeout(function(){ current++; renderQuestion(); }, 320);
+  } else {
+    setTimeout(showResult, 480);
+  }
+}
+
+function updateProgress(){
+  var answered = ANSWERS.filter(function(a){return a!=null;}).length;
+  document.getElementById('progress-fill').style.width = Math.round(answered/QUESTIONS.length*100)+'%';
+}
+
+function goPrev(){
+  if(current>0){ current--; renderQuestion(); }
+}
+
+/* ===== 计分（归一化到 0–100） ===== */
+function computeScores(){
+  var raw={};
+  SIN_ORDER.concat(VIRT_ORDER).forEach(function(k){ raw[k]=0; });
+  QUESTIONS.forEach(function(q,i){
+    var a=ANSWERS[i]; if(a==null) return;
+    var sp=[3,2,1,0][a], vp=[0,1,2,3][a];
+    raw[q.sin]+=sp; raw[q.virtue]+=vp;
+  });
+  var score={};
+  Object.keys(raw).forEach(function(k){ score[k]=Math.round(raw[k]/15*100); });
+  return score;
+}
+
+/* ===== 心理分析生成 ===== */
+function buildAnalysis(score){
+  var sinD=SIN_ORDER.slice().sort(function(a,b){return score[b]-score[a];});
+  var virD=VIRT_ORDER.slice().sort(function(a,b){return score[b]-score[a];});
+  var s1=sinD[0], s2=sinD[1], v1=virD[0], v2=virD[1];
+  var sumS=0,sumV=0;
+  SIN_ORDER.forEach(function(k){sumS+=score[k];});
+  VIRT_ORDER.forEach(function(k){sumV+=score[k];});
+  var diff=Math.round((sumV-sumS)/7); // -100..100，美德−罪性
+
+  var overview;
+  if(diff>=12){
+    overview='你的明暗光谱中，【'+DIMS[s1].zh+'】是你最常调用的欲望面，【'+DIMS[v1].zh+'】是你最稳固的向善面。整体上美德倾向明显高于罪性，你习惯为他人与长远着想，是让人安心的人，只是请记住，你也有权为自己保留。';
+  }else if(diff<=-12){
+    overview='你的明暗光谱中，【'+DIMS[s1].zh+'】是你最常调用的欲望面，【'+DIMS[v1].zh+'】是你最稳固的向善面。整体上罪性倾向明显高于美德，你直觉强烈、敢要敢闯，这份能量很宝贵，只需留意别让它在关系里伤人伤己。';
+  }else{
+    overview='你的明暗光谱中，【'+DIMS[s1].zh+'】是你最常调用的欲望面，【'+DIMS[v1].zh+'】是你最稳固的向善面。整体上罪与德大体均衡，你在两种力量间切换自如，既有冲劲也懂克制，只是偶尔会犹豫该听从哪一边。';
+  }
+
+  var interact=[DIMS[s1].interact, DIMS[v1].interact];
+  var strength=[DIMS[v1].strength, DIMS[v2].strength, DIMS[s1].strength];
+  var wrong=[DIMS[v1].selfwrong, DIMS[v2].selfwrong];
+  if(score[s1]>=60) wrong.push(DIMS[s1].selfwrong);
+  var advice=[DIMS[s1].suggest, DIMS[s2].suggest, DIMS[v1].suggest];
+
+  return {s1:s1, v1:v1, diff:diff, overview:overview,
+          interact:interact, strength:strength, wrong:wrong, advice:advice};
+}
+
+/* ===== 结果渲染 ===== */
+function renderDimList(score){
+  var order=SIN_ORDER.concat(VIRT_ORDER);
+  var box=document.getElementById('dim-list');
+  box.innerHTML='';
+  order.forEach(function(k){
+    var d=DIMS[k], v=score[k];
+    var row=document.createElement('div');
+    row.className='dim-row '+d.side;
+    row.innerHTML='<div class="dn">'+d.zh+'</div>'
+      +'<div class="bar"><i style="width:'+v+'%"></i></div>'
+      +'<div class="dv">'+v+'</div>';
+    var detail=document.createElement('div');
+    detail.className='dim-detail';
+    detail.style.cssText='grid-column:1/-1;display:none;font-size:12.5px;color:var(--ink-2);background:var(--bg-2);border-radius:10px;padding:10px 12px;line-height:1.7;';
+    var clause = v>=60 ? ('这个维度较高时，'+d.interact) : ('这个维度偏低时，'+LOW[k]);
+    detail.textContent = d.zh + DEF[k] + '。' + clause;
+    row.style.cursor='pointer';
+    row.addEventListener('click',function(){
+      var on=detail.style.display==='none';
+      detail.style.display=on?'block':'none';
+    });
+    row.appendChild(detail);
+    box.appendChild(row);
+  });
+}
+
+function renderRadar(score){
+  var indOrder=['sloth','gluttony','greed','pride','envy','wrath','lust','chastity','temperance','generosity','diligence','patience','kindness','humility'];
+  var indicator=indOrder.map(function(k){ return {name: DIMS[k].zh+'\n'+score[k], max:100}; });
+  var sinVals=indOrder.map(function(k){ return DIMS[k].side==='sin'?score[k]:0; });
+  var virVals=indOrder.map(function(k){ return DIMS[k].side==='virtue'?score[k]:0; });
+  var chart=echarts.init(document.getElementById('radar'));
+  chart.setOption({
+    color:['#B5766F','#9B86A8'],
+    tooltip:{confine:true},
+    radar:{
+      center:['50%','52%'], radius:'64%', startAngle:270,
+      indicator:indicator,
+      splitArea:{areaStyle:{color:['#F6F3EE','#FCFBF7']}},
+      splitLine:{lineStyle:{color:'#E6E2D9'}},
+      axisLine:{lineStyle:{color:'#E6E2D9'}},
+      axisName:{color:'#8F8A80', fontSize:10, fontFamily:'Noto Sans SC', lineHeight:13, margin:12}
+    },
+    series:[
+      {type:'radar', name:'七宗罪', symbol:'circle', symbolSize:4,
+       lineStyle:{color:'#B5766F', width:2}, itemStyle:{color:'#B5766F'},
+       areaStyle:{color:'rgba(181,118,111,.16)'},
+       data:[{value:sinVals, name:'七宗罪'}]},
+      {type:'radar', name:'七美德', symbol:'circle', symbolSize:4,
+       lineStyle:{color:'#9B86A8', width:2}, itemStyle:{color:'#9B86A8'},
+       areaStyle:{color:'rgba(155,134,168,.16)'},
+       data:[{value:virVals, name:'七美德'}]}
+    ]
+  });
+  window.addEventListener('resize', function(){ chart.resize(); });
+}
+
+function setList(id, arr){
+  var ul=document.getElementById(id);
+  ul.innerHTML='';
+  arr.forEach(function(t){
+    var li=document.createElement('li');
+    li.textContent=t;
+    ul.appendChild(li);
+  });
+}
+
+function showResult(){
+  var score=computeScores();
+  var an=buildAnalysis(score);
+  document.getElementById('r-sin-top').textContent=DIMS[an.s1].zh;
+  document.getElementById('r-sin-top-v').textContent='倾向值 '+score[an.s1];
+  document.getElementById('r-virtue-top').textContent=DIMS[an.v1].zh;
+  document.getElementById('r-virtue-top-v').textContent='倾向值 '+score[an.v1];
+  var diffEl=document.getElementById('r-diff');
+  var d=an.diff;
+  var sign=d>=0? '+':'';
+  diffEl.innerHTML='美德 − 罪性差值 <b class="'+ (d>0?'neg':(d<0?'pos':'mid')) +'">'+sign+d+'</b>';
+  document.getElementById('r-overview').textContent=an.overview;
+  setList('r-interact', an.interact);
+  setList('r-strength', an.strength);
+  setList('r-wrong', an.wrong);
+  setList('r-advice', an.advice);
+  renderDimList(score);
+  showView('result');
+  requestAnimationFrame(function(){ ensureEcharts(function(){ renderRadar(score); }); });
+}
+
+/* ===== 路由与事件 ===== */
+function route(){
+  if(!UNLOCKED){ showView('lock'); return; }
+  var h=location.hash;
+  if(h==='#/result' && ANSWERS.indexOf(null)!==-1){ location.hash='#/'; return; }
+  if(h==='#/quiz'){ showView('quiz'); }
+  else if(h==='#/result'){ showView('result'); }
+  else{ showView('home'); }
+}
+window.addEventListener('hashchange', route);
+
+document.getElementById('btn-start').addEventListener('click', function(){
+  current=0; renderQuestion(); location.hash='#/quiz';
+});
+document.getElementById('btn-prev').addEventListener('click', function(){ goPrev(); });
+document.getElementById('btn-skip').addEventListener('click', function(){ goPrev(); });
+document.getElementById('btn-next').addEventListener('click', function(){
+  if(ANSWERS[current]==null){ /* 未作答时不前进 */ return; }
+  if(current<QUESTIONS.length-1){ current++; renderQuestion(); }
+  else{ showResult(); }
+});
+document.getElementById('btn-restart').addEventListener('click', function(){
+  ANSWERS=new Array(QUESTIONS.length).fill(null);
+  current=0;
+  location.hash='#/';
+});
+
+initLockUI();
+document.getElementById('lock-btn').addEventListener('click', tryUnlock);
+document.getElementById('lock-input').addEventListener('keydown', function(e){ if(e.key==='Enter'){ tryUnlock(); } });
+document.getElementById('lock-name').addEventListener('keydown', function(e){ if(e.key==='Enter'){ tryUnlock(); } });
+document.getElementById('admin-toggle').addEventListener('click', function(){
+  var el=document.getElementById('lock-admin');
+  el.style.display = el.style.display==='none' ? 'block' : 'none';
+});
+document.getElementById('admin-unlock').addEventListener('click', function(){
+  if(document.getElementById('admin-key').value===LOCK.adminKey){
+    document.getElementById('lock-err').textContent='';
+    renderAdminContent();
+  }else{
+    lockErr('管理员密码错误');
+  }
+});
+
+route();
+
+</script></body>
+</html>
